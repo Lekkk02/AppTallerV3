@@ -5,66 +5,129 @@ import * as Print from "expo-print";
 import { COLORS } from "../../constants";
 
 export default function App({ items }) {
-  // Asumiendo que 'items' es un array de objetos
   const [saved, setSaved] = useState(false);
 
   async function savePDF() {
     try {
       let itemsArray = Array.isArray(items) ? items : [items];
-      let htmlContent = itemsArray
-        .map((item) => {
-          const {
-            nombreProducto,
-            cedulaCliente,
-            telefonoCliente,
-            direccionCliente,
-            tipoProducto,
-            marcaProducto,
-            serialProducto,
-            comentarios,
-            fechaRecepcion,
-            idOrden,
-            procesadoPor,
-            completadoPor,
-          } = item;
+      const tableElements = itemsArray.reduce((acc, item, index) => {
+        const {
+          nombreCliente,
+          cedulaCliente,
+          tipoProducto,
+          marcaProducto,
+          direccionCliente,
+          serialProducto,
+          telefonoCliente,
+          idOrden,
+          comentarios,
+          procesadoPor,
+          completadoPor,
+          fechaRecepcion,
+          estadoOrden,
+        } = item;
 
-          return `
-          <div class="container">
-            <h2>Reporte de Producto</h2>
-            <p><strong>Nombre del Producto:</strong> ${nombreProducto}</p>
-            <p><strong>Cédula del Cliente:</strong> ${cedulaCliente}</p>
-            <p><strong>Teléfono del Cliente:</strong> ${telefonoCliente}</p>
-            <p><strong>Dirección del Cliente:</strong> ${direccionCliente}</p>
-            <p><strong>Tipo de Producto:</strong> ${tipoProducto}</p>
-            <p><strong>Marca del Producto:</strong> ${marcaProducto}</p>
-            <p><strong>Serial del Producto:</strong> ${serialProducto}</p>
-            <p><strong>Comentarios:</strong> ${comentarios}</p>
-            <p><strong>Fecha de Recepción:</strong> ${fechaRecepcion}</p>
-            <p><strong>ID de la Orden:</strong> ${idOrden}</p>
-            <p><strong>Procesado por:</strong> ${procesadoPor}</p>
-            <p><strong>Completado por:</strong> ${completadoPor}</p>
+        let tableContent = `
+          <div style="height: 50%;">
+            <table style="height: 80%;">
+              <tr>
+                <th colspan="4">Orden ${idOrden}</th>
+              </tr>
+              <tr>
+                <td><strong>Nombre Cliente:</strong></td>
+                <td>${nombreCliente}</td>
+                <td><strong>Cédula:</strong></td>
+                <td>${cedulaCliente}</td>
+              </tr>
+              <tr>
+                <td><strong>Tipo de Producto:</strong></td>
+                <td>${tipoProducto}</td>
+                <td><strong>Marca del Producto:</strong></td>
+                <td>${marcaProducto}</td>
+              </tr>
+              <tr>
+                <td><strong>Dirección:</strong></td>
+                <td>${direccionCliente}</td>
+                <td><strong>Serial:</strong></td>
+                <td>${serialProducto}</td>
+              </tr>
+              <tr>
+                <td><strong>Teléfono:</strong></td>
+                <td>${telefonoCliente}</td>
+                <td><strong>ID de la Orden:</strong></td>
+                <td>${idOrden}</td>
+              </tr>
+              <tr>
+                <td><strong>Comentarios:</strong></td>
+                <td colspan="4">${comentarios}</td>
+              </tr>
+              <tr>
+              <td><strong>Fecha de recepción:</strong></td>
+              <td colspan="4">${fechaRecepcion}</td>
+            </tr>
+              <tr>
+                <td colspan="1"><strong>Procesado por:</strong> ${
+                  procesadoPor !== "undefined undefined"
+                    ? procesadoPor
+                    : "NO PROCESADO"
+                }</td>
+                <td colspan="1"><strong>Completado por:</strong> ${
+                  completadoPor !== "undefined undefined"
+                    ? completadoPor
+                    : "NO COMPLETADO"
+                }</td>
+                <td colspan="2"><strong>Estado: </strong>${estadoOrden}</td>
+              </tr>
+            </table>
           </div>
         `;
-        })
-        .join("");
+
+        if (index % 2 !== 0) {
+          // Si el índice es impar, se agrega un salto de página
+          tableContent += '<div style="page-break-after: auto;"></div>';
+        }
+
+        acc.push(tableContent);
+        return acc;
+      }, []);
+
+      const htmlContent = `
+        <html>
+        <head>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+            }
+            table {
+              width: 100%;
+              border: 1px solid #ddd;
+              border-collapse: collapse;
+              margin-bottom: 20px;
+            }
+            td, th {
+              padding: 8px;
+              border: 1px solid #ddd;
+              text-align: left;
+            }
+            th {
+              background-color: #3399ff;
+              color: white;
+            }
+            tr:nth-child(even) {
+              background-color: #f2f2f2;
+            }
+          </style>
+        </head>
+        <body>
+          ${tableElements.join("")}
+        </body>
+        </html>
+      `;
 
       const options = {
-        html: `
-          <html>
-          <head>
-            <style>
-              body { font-family: Arial, sans-serif; margin: 0; padding: 0; color: #333; }
-              .container { padding: 18px; }
-              h2 { color: #444; }
-              p { margin: 10px 0; border-bottom: 1px solid #ddd; padding-bottom: 8px; }
-              strong { color: #555; }
-            </style>
-          </head>
-          <body>${htmlContent}</body>
-          </html>
-        `,
-        width: 500,
-        height: 500,
+        html: htmlContent,
+        width: 400,
+        height: 842, // Half of the standard A4 size in pixels (842)
       };
 
       let result = await Print.printAsync(options);
@@ -103,15 +166,7 @@ export default function App({ items }) {
       >
         <Text>DESCARGAR REPORTE</Text>
       </TouchableOpacity>
-      {saved && (
-        <Text
-          style={{
-            alignSelf: "center",
-          }}
-        >
-          ¡Archivo guardado!
-        </Text>
-      )}
+      {saved && <Text style={{ alignSelf: "center" }}>¡Archivo guardado!</Text>}
     </View>
   );
 }

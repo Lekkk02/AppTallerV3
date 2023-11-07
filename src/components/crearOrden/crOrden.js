@@ -35,10 +35,18 @@ const Formulario = () => {
 
   const validarCedula = (cedula) => {
     if (isNaN(cedula)) {
-      alert("La cédula debe ser un número");
-      return false;
+      alert("La cédula deben ser números");
+      return;
     }
     setCedula(cedula);
+  };
+
+  const validarTelefono = (telefono) => {
+    if (isNaN(telefono)) {
+      alert("El número de teléfono deben ser números");
+      return false;
+    }
+    setTelefono(telefono);
     return true;
   };
   const validarFormulario = () => {
@@ -156,7 +164,7 @@ const Formulario = () => {
           <TextInput
             placeholder="Número de teléfono del cliente"
             value={telefonoCliente}
-            onChangeText={setTelefono}
+            onChangeText={validarTelefono}
             style={styles.searchWrapper}
           />
 

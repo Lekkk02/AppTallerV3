@@ -41,7 +41,7 @@ const App = () => {
   );
 
   return (
-    <View>
+    <View style={{ flex: 1 }}>
       <FlatList
         data={currentData}
         renderItem={({ item }) => <EmpleadoCard empleado={item} />}

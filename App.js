@@ -20,13 +20,10 @@ import {
   ActivityIndicator,
 } from "react-native";
 
-import { icons, images } from "./src/constants";
-import { useNavigation } from "@react-navigation/native";
 // Importa tus pantallas aquí
 import HomeScreen from "./src/screens/HomeScreen";
 import RegistroScreen from "./src/screens/RegistroScreen";
 import CrearOrdenScreen from "./src/screens/CrearOrdenScreen";
-import OrdenesAllScreen from "./src/screens/ordenes/[slug]";
 import OrdenScreen from "./src/screens/orden/[id]";
 import OrdenesScreen from "./src/screens/ordenes/[slug]";
 import BusquedaScreen from "./src/screens/search/[slug]";
@@ -34,7 +31,6 @@ import ScanScreen from "./src/screens/ScanScreen";
 import LoginScreen from "./src/screens/LoginScreen";
 import CerrarSesionScreen from "./src/screens/CerrarScreen";
 import EmpleadosScreen from "./src/screens/EmpleadosScreen";
-import { ScreenHeaderBtn } from "./src/components";
 import { signOut } from "firebase/auth";
 
 const Tab = createBottomTabNavigator();
@@ -83,37 +79,6 @@ function HomeTabs() {
   );
 }
 
-function AuthTabs() {
-  return (
-    <Tab.Navigator screenOptions={{ headerShown: false }}>
-      <Tab.Screen
-        name="LoginTab"
-        component={HomeScreen}
-        options={{
-          tabBarIcon: () => <Entypo name="home" size={24} color="black" />,
-          tabBarLabel: ({ focused, color }) => (
-            <Text style={{ color, fontSize: focused ? 16 : 14 }}>Inicio</Text> // Cambia el tamaño del texto aquí
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="RegistroTab"
-        component={RegistroScreen}
-        options={{
-          tabBarIcon: () => (
-            <MaterialIcons name="create" size={24} color="black" />
-          ),
-          tabBarLabel: ({ focused, color }) => (
-            <Text style={{ color, fontSize: focused ? 16 : 14 }}>
-              Crear orden
-            </Text> // Cambia el tamaño del texto aquí
-          ),
-        }}
-      />
-    </Tab.Navigator>
-  );
-}
-
 function App() {
   const auth = FIREBASE_AUTH;
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -141,7 +106,7 @@ function App() {
                     display: "flex",
                     flexDirection: "row",
                     justifyContent: "space-between",
-                    marginTop: 48,
+                    marginTop: 22,
                     marginHorizontal: 10,
                     marginBottom: 12,
                   }}

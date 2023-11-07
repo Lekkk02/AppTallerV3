@@ -7,8 +7,9 @@ import {
   StyleSheet,
   Image,
   Text,
+  ActivityIndicator,
 } from "react-native";
-import { images } from "../constants";
+import { images, COLORS } from "../constants";
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -30,28 +31,18 @@ const LoginScreen = () => {
       );
       console.log(response);
     } catch (error) {
-      setError(error.toString());
+      alert("Credenciales incorrecta o no se han ingresado credenciales");
     } finally {
       setLoading(false);
     }
   };
 
-  const signUp = async () => {
-    setLoading(true);
-    try {
-      const response = await createUserWithEmailAndPassword(
-        auth,
-        username,
-        password
-      );
-      console.log(response);
-    } catch (error) {
-      setError(error.toString());
-    } finally {
-      setLoading(false);
-    }
-  };
-  if (loading) return <Text>Cargando...</Text>;
+  if (loading)
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color={COLORS.tertiary} />
+      </View>
+    );
 
   return (
     <View style={styles.container}>
