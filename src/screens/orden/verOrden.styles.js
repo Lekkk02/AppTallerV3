@@ -90,6 +90,38 @@ const styles = StyleSheet.create({
     fontSize: SIZES.xLarge,
     fontWeight: "bold",
   },
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 22,
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: "white",
+    borderRadius: 5,
+    padding: 55,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: "center",
+    backgroundColor: COLORS.lightWhite,
+    padding: 15,
+  },
+  closeButton: {
+    position: "absolute",
+    top: 15,
+    right: 15,
+  },
 });
 
 export default styles;

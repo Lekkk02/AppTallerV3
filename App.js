@@ -31,6 +31,7 @@ import ScanScreen from "./src/screens/ScanScreen";
 import LoginScreen from "./src/screens/LoginScreen";
 import CerrarSesionScreen from "./src/screens/CerrarScreen";
 import EmpleadosScreen from "./src/screens/EmpleadosScreen";
+import DefectuosasScreen from "./src/screens/DefectuosasScreen";
 import { signOut } from "firebase/auth";
 
 const Tab = createBottomTabNavigator();
@@ -70,7 +71,21 @@ function HomeTabs() {
           ),
           tabBarLabel: ({ focused, color }) => (
             <Text style={{ color, fontSize: focused ? 16 : 14 }}>
-              Ver empleados
+              Empleados
+            </Text> // Cambia el tamaño del texto aquí
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Defectuosas"
+        component={DefectuosasScreen}
+        options={{
+          tabBarIcon: () => (
+            <MaterialIcons name="report-problem" size={24} color="black" />
+          ),
+          tabBarLabel: ({ focused, color }) => (
+            <Text style={{ color, fontSize: focused ? 16 : 14 }}>
+              Suspendidas
             </Text> // Cambia el tamaño del texto aquí
           ),
         }}
