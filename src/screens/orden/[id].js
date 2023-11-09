@@ -54,6 +54,32 @@ const Home = () => {
     fetchData();
   }, [fetchData]);
 
+  const RequestSuspender = async () => {
+    try {
+      let response = await fetch(
+        `https://daappserver-production.up.railway.app/api/ordenes/${id}`,
+        {
+          method: "PUT",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            estadoOrden: "SUSPENDIDA",
+            comentarios: inputText,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      } else {
+        await fetchData();
+      }
+    } catch (error) {
+      console.log("Hubo un problema con la petición Fetch: " + error.message);
+    }
+  };
   return (
     <SafeAreaView>
       <ScrollView>
