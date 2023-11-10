@@ -35,11 +35,14 @@ const Formulario = () => {
 
   const validarCedula = (cedula) => {
     if (isNaN(cedula)) {
-      alert("La cédula deben ser números");
+      Alert.alert(
+        "ADVERTENCIA",
+        "La cédula solamente acepta números, no letras ni espacios"
+      );
       return;
     }
     if (cedula.length > 8) {
-      alert("Introduzca un número válido de cédula");
+      Alert.alert("ADVERTENCIA", "Introduzca un número válido de cédula");
       return;
     }
 
@@ -48,58 +51,106 @@ const Formulario = () => {
 
   const validarTelefono = (telefono) => {
     if (isNaN(telefono)) {
-      alert("El número de teléfono deben ser números");
+      Alert.alert(
+        "ADVERTENCIA",
+        "El número de teléfono solamente acepta números, no letras ni espacios"
+      );
       return false;
+    }
+    if (telefono.length > 11) {
+      Alert.alert("ADVERTENCIA", "Introduzca un número de teléfono válido");
     }
     setTelefono(telefono);
     return true;
   };
   const validarFormulario = () => {
     if (!nombreCliente && nombreCliente == "") {
-      alert("Ingrese el nombre del Cliente");
+      Alert.alert("ADVERTENCIA", "Ingrese el nombre del Cliente");
       return false;
     }
 
     if (!cedulaCliente || cedulaCliente == "") {
-      alert("Ingrese la cédula del Cliente");
+      Alert.alert("ADVERTENCIA", "Ingrese la cédula del Cliente");
       return false;
     }
     if (!telefonoCliente || telefonoCliente == "") {
-      alert("Ingrese telefono del cliente");
+      Alert.alert("ADVERTENCIA", "Ingrese telefono del cliente");
       return false;
     }
     if (!marcaProducto || marcaProducto == "") {
-      alert("Ingrese marca del equipo");
+      Alert.alert("ADVERTENCIA", "Ingrese marca del equipo");
       return false;
     }
     if (!serialProducto || serialProducto == "") {
-      alert("Ingrese serial del equipo");
+      Alert.alert("ADVERTENCIA", "Ingrese serial del equipo");
       return false;
     }
     if (!tipoProducto || tipoProducto == "") {
-      alert("Ingrese tipo del equipo");
+      Alert.alert("ADVERTENCIA", "Ingrese tipo del equipo");
       return false;
     }
     if (!nombreProducto || nombreProducto == "") {
-      alert("Ingrese nombre del equipo");
+      Alert.alert("ADVERTENCIA", "Ingrese nombre del equipo");
       return false;
     }
     if (!direccionCliente || direccionCliente == "") {
-      alert("Ingrese telefono del cliente");
+      Alert.alert("ADVERTENCIA", "Ingrese dirección del cliente");
       return false;
     }
 
     if (!comentarios || comentarios == "") {
-      alert("Ingrese un comentario sobre el producto");
+      Alert.alert("ADVERTENCIA", "Ingrese un comentario sobre el producto");
       return false;
     }
 
     if (comentarios.length > 250) {
-      alert(
+      Alert.alert(
+        "ADVERTENCIA",
         "El comentario es demasiado largo, máximo se permiten 250 caracteres"
       );
-      return;
+      return false;
     }
+
+    if (nombreCliente.length > 50) {
+      Alert.alert(
+        "ADVERTENCIA",
+        "El nombre es demasiado largo, máximo se permiten 50 caracteres"
+      );
+      return false;
+    }
+
+    if (direccionCliente.length > 250) {
+      Alert.alert(
+        "ADVERTENCIA",
+        "La dirección es demasiado larga, máximo se permiten 250 caracteres"
+      );
+      return false;
+    }
+
+    if (nombreProducto.length > 50) {
+      Alert.alert(
+        "ADVERTENCIA",
+        "El nombre del equipo es demasiado largo, máximo se permiten 50 caracteres"
+      );
+      return false;
+    }
+
+    if (marcaProducto.length > 50) {
+      Alert.alert(
+        "ADVERTENCIA",
+        "La marca del equipo es demasiado larga, máximo se permiten 50 caracteres"
+      );
+      return false;
+    }
+
+    if (serialProducto.length > 50) {
+      Alert.alert(
+        "ADVERTENCIA",
+        "El serial del equipo es demasiado largo, máximo se permiten 50 caracteres"
+      );
+      return false;
+    }
+
     return true;
   };
 

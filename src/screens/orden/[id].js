@@ -117,7 +117,7 @@ const Home = () => {
             <Text style={styles.serialOrden}>
               SERIAL: {data.serialProducto}
             </Text>
-            <Text style={styles.subtituloOrden}>COMENTARIOS DE LA ORDEN</Text>
+            <Text style={styles.subtituloOrden}>COMENTARIOS DEL ESTADO</Text>
             <Text style={styles.serialOrden}>{data.comentarios}</Text>
             <Text style={styles.fechaRecepcion}>
               Recibido en la fecha: {data.fechaRecepcion}
