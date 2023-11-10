@@ -81,6 +81,19 @@ const styles = StyleSheet.create({
     padding: 14,
     elevation: 5,
   },
+  estadoOrdenSuspendida: {
+    marginVertical: 12,
+    textAlign: "center",
+    fontWeight: "bold",
+    fontSize: SIZES.large,
+    borderWidth: 0.5,
+    borderColor: COLORS.white,
+    borderRadius: 64,
+    backgroundColor: COLORS.OrdenSuspendida,
+    alignSelf: "center",
+    padding: 14,
+    elevation: 5,
+  },
   nombreCliente: {
     fontSize: SIZES.large,
     textAlign: "center",
@@ -116,6 +129,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     backgroundColor: COLORS.lightWhite,
     padding: 15,
+    width: "100%",
   },
   closeButton: {
     position: "absolute",

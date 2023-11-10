@@ -32,6 +32,7 @@ const styles = StyleSheet.create({
     padding: 6,
     marginTop: 2,
     textAlign: "center",
+    overflow: "scroll",
   },
 
   boton: {

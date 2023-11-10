@@ -32,7 +32,12 @@ const Home = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [modalVisibleProcesar, setModalVisibleProcesar] = useState(false);
+  const [modalVisibleCompletar, setModalVisibleCompletar] = useState(false);
   const [inputText, setInputText] = useState("");
+  const [inputTextProcesar, setInputTextProcesar] = useState("");
+  const [inputTextCompletar, setInputTextCompletar] = useState("");
+
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     try {
@@ -55,6 +60,12 @@ const Home = () => {
   }, [fetchData]);
 
   const RequestSuspender = async () => {
+    if (inputText.length > 250) {
+      alert(
+        "El comentario es demasiado largo, máximo se permiten 250 caracteres"
+      );
+      return;
+    }
     try {
       let response = await fetch(
         `https://daappserver-production.up.railway.app/api/ordenes/${id}`,
@@ -106,7 +117,7 @@ const Home = () => {
             <Text style={styles.serialOrden}>
               SERIAL: {data.serialProducto}
             </Text>
-            <Text style={styles.subtituloOrden}>COMENTARIOS DEL EQUIPO</Text>
+            <Text style={styles.subtituloOrden}>COMENTARIOS DE LA ORDEN</Text>
             <Text style={styles.serialOrden}>{data.comentarios}</Text>
             <Text style={styles.fechaRecepcion}>
               Recibido en la fecha: {data.fechaRecepcion}
@@ -139,47 +150,80 @@ const Home = () => {
 
                 <Button
                   title="MARCAR ORDEN COMO COMPLETADA"
-                  onPress={async () => {
-                    try {
-                      const options = {
-                        method: "GET",
-                        url: `https://daappserver-production.up.railway.app/api/empleados/${email}`,
-                      };
-                      const empResponse = await axios.request(options);
-                      let nombreCompleto =
-                        empResponse.data.nombre +
-                        " " +
-                        empResponse.data.apellido;
-                      let response = await fetch(
-                        `https://daappserver-production.up.railway.app/api/ordenes/${id}`,
-                        {
-                          method: "PUT",
-                          headers: {
-                            Accept: "application/json",
-                            "Content-Type": "application/json",
-                          },
-                          body: JSON.stringify({
-                            estadoOrden: "COMPLETADA",
-                            completadoPor: nombreCompleto,
-                          }),
-                        }
-                      );
-
-                      if (!response.ok) {
-                        throw new Error(
-                          `HTTP error! status: ${response.status}`
-                        );
-                      } else {
-                        await fetchData();
-                      }
-                    } catch (error) {
-                      console.log(
-                        "Hubo un problema con la petición Fetch: " +
-                          error.message
-                      );
-                    }
+                  onPress={() => {
+                    setModalVisibleCompletar(!modalVisibleCompletar);
                   }}
                 />
+                <Modal
+                  animationType="slide"
+                  transparent={true}
+                  visible={modalVisibleCompletar}
+                >
+                  <View style={styles.centeredView}>
+                    <View style={styles.modalView}>
+                      <TouchableOpacity
+                        style={styles.closeButton}
+                        onPress={() =>
+                          setModalVisibleCompletar(!modalVisibleCompletar)
+                        }
+                      >
+                        <AntDesign name="close" size={24} color="black" />
+                      </TouchableOpacity>
+                      <TextInput
+                        style={styles.modalText}
+                        onChangeText={(text) => setInputTextCompletar(text)}
+                        value={inputTextCompletar}
+                        placeholder="Ingrese comentario de la orden a completar"
+                      />
+                      <Button
+                        title="Aceptar"
+                        onPress={async () => {
+                          setModalVisibleCompletar(!modalVisibleCompletar);
+
+                          try {
+                            const options = {
+                              method: "GET",
+                              url: `https://daappserver-production.up.railway.app/api/empleados/${email}`,
+                            };
+                            const empResponse = await axios.request(options);
+                            let nombreCompleto =
+                              empResponse.data.nombre +
+                              " " +
+                              empResponse.data.apellido;
+                            let response = await fetch(
+                              `https://daappserver-production.up.railway.app/api/ordenes/${id}`,
+                              {
+                                method: "PUT",
+                                headers: {
+                                  Accept: "application/json",
+                                  "Content-Type": "application/json",
+                                },
+                                body: JSON.stringify({
+                                  estadoOrden: "COMPLETADA",
+                                  completadoPor: nombreCompleto,
+                                  comentarios: inputTextCompletar,
+                                }),
+                              }
+                            );
+
+                            if (!response.ok) {
+                              throw new Error(
+                                `HTTP error! status: ${response.status}`
+                              );
+                            } else {
+                              await fetchData();
+                            }
+                          } catch (error) {
+                            console.log(
+                              "Hubo un problema con la petición Fetch: " +
+                                error.message
+                            );
+                          }
+                        }}
+                      />
+                    </View>
+                  </View>
+                </Modal>
                 <TouchableOpacity
                   style={{
                     marginTop: 20,
@@ -224,53 +268,180 @@ const Home = () => {
                   </View>
                 </Modal>
               </View>
+            ) : data.estadoOrden == "SUSPENDIDA" ? (
+              <View>
+                <Text style={styles.estadoOrdenSuspendida}>
+                  {data.estadoOrden}
+                </Text>
+
+                <Button
+                  title="MARCAR ORDEN COMO COMPLETADA"
+                  onPress={() => {
+                    setModalVisibleCompletar(!modalVisibleCompletar);
+                  }}
+                />
+                <Modal
+                  animationType="slide"
+                  transparent={true}
+                  visible={modalVisibleCompletar}
+                >
+                  <View style={styles.centeredView}>
+                    <View style={styles.modalView}>
+                      <TouchableOpacity
+                        style={styles.closeButton}
+                        onPress={() =>
+                          setModalVisibleCompletar(!modalVisibleCompletar)
+                        }
+                      >
+                        <AntDesign name="close" size={24} color="black" />
+                      </TouchableOpacity>
+                      <TextInput
+                        style={styles.modalText}
+                        onChangeText={(text) => setInputTextCompletar(text)}
+                        value={inputTextCompletar}
+                        placeholder="Ingrese comentario de la orden a completar"
+                      />
+                      <Button
+                        title="Aceptar"
+                        onPress={async () => {
+                          setModalVisibleCompletar(!modalVisibleCompletar);
+                          if (inputTextCompletar.length > 250) {
+                            alert(
+                              "El comentario es demasiado largo, máximo se permiten 250 caracteres"
+                            );
+                            return;
+                          }
+                          try {
+                            const options = {
+                              method: "GET",
+                              url: `https://daappserver-production.up.railway.app/api/empleados/${email}`,
+                            };
+                            const empResponse = await axios.request(options);
+                            let nombreCompleto =
+                              empResponse.data.nombre +
+                              " " +
+                              empResponse.data.apellido;
+                            let response = await fetch(
+                              `https://daappserver-production.up.railway.app/api/ordenes/${id}`,
+                              {
+                                method: "PUT",
+                                headers: {
+                                  Accept: "application/json",
+                                  "Content-Type": "application/json",
+                                },
+                                body: JSON.stringify({
+                                  estadoOrden: "COMPLETADA",
+                                  completadoPor: nombreCompleto,
+                                  comentarios: inputTextCompletar,
+                                }),
+                              }
+                            );
+
+                            if (!response.ok) {
+                              throw new Error(
+                                `HTTP error! status: ${response.status}`
+                              );
+                            } else {
+                              await fetchData();
+                            }
+                          } catch (error) {
+                            console.log(
+                              "Hubo un problema con la petición Fetch: " +
+                                error.message
+                            );
+                          }
+                        }}
+                      />
+                    </View>
+                  </View>
+                </Modal>
+              </View>
             ) : (
               <View>
                 <Text style={styles.estadoOrdenEspera}>{data.estadoOrden}</Text>
 
                 <Button
                   title="PROCESAR ORDEN"
-                  onPress={async () => {
-                    try {
-                      const options = {
-                        method: "GET",
-                        url: `https://daappserver-production.up.railway.app/api/empleados/${email}`,
-                      };
-                      const empResponse = await axios.request(options);
-                      let nombreCompleto =
-                        empResponse.data.nombre +
-                        " " +
-                        empResponse.data.apellido;
-                      let response = await fetch(
-                        `https://daappserver-production.up.railway.app/api/ordenes/${id}`,
-                        {
-                          method: "PUT",
-                          headers: {
-                            Accept: "application/json",
-                            "Content-Type": "application/json",
-                          },
-                          body: JSON.stringify({
-                            estadoOrden: "EN PROCESO",
-                            procesadoPor: nombreCompleto,
-                          }),
-                        }
-                      );
-
-                      if (!response.ok) {
-                        throw new Error(
-                          `HTTP error! status: ${response.status}`
-                        );
-                      } else {
-                        await fetchData();
-                      }
-                    } catch (error) {
-                      console.log(
-                        "Hubo un problema con la petición Fetch: " +
-                          error.message
-                      );
-                    }
+                  onPress={() => {
+                    setModalVisibleProcesar(!modalVisibleProcesar);
                   }}
                 />
+
+                <Modal
+                  animationType="slide"
+                  transparent={true}
+                  visible={modalVisibleProcesar}
+                >
+                  <View style={styles.centeredView}>
+                    <View style={styles.modalView}>
+                      <TouchableOpacity
+                        style={styles.closeButton}
+                        onPress={() =>
+                          setModalVisibleProcesar(!modalVisibleProcesar)
+                        }
+                      >
+                        <AntDesign name="close" size={24} color="black" />
+                      </TouchableOpacity>
+                      <TextInput
+                        style={styles.modalText}
+                        onChangeText={(text) => setInputTextProcesar(text)}
+                        value={inputTextProcesar}
+                        placeholder="Ingrese comentario de la orden a procesar"
+                      />
+                      <Button
+                        title="Aceptar"
+                        onPress={async () => {
+                          setModalVisibleProcesar(!modalVisibleProcesar);
+                          if (inputTextProcesar.length > 250) {
+                            alert(
+                              "El comentario es demasiado largo, máximo se permiten 250 caracteres"
+                            );
+                            return;
+                          }
+                          try {
+                            const options = {
+                              method: "GET",
+                              url: `https://daappserver-production.up.railway.app/api/empleados/${email}`,
+                            };
+                            const empResponse = await axios.request(options);
+                            let nombreCompleto =
+                              empResponse.data.nombre +
+                              " " +
+                              empResponse.data.apellido;
+                            let response = await fetch(
+                              `https://daappserver-production.up.railway.app/api/ordenes/${id}`,
+                              {
+                                method: "PUT",
+                                headers: {
+                                  Accept: "application/json",
+                                  "Content-Type": "application/json",
+                                },
+                                body: JSON.stringify({
+                                  estadoOrden: "EN PROCESO",
+                                  procesadoPor: nombreCompleto,
+                                  comentarios: inputTextProcesar,
+                                }),
+                              }
+                            );
+
+                            if (!response.ok) {
+                              throw new Error(
+                                `HTTP error! status: ${response.status}`
+                              );
+                            } else {
+                              await fetchData();
+                            }
+                          } catch (error) {
+                            console.log(
+                              "Hubo un problema con la petición Fetch: " +
+                                error.message
+                            );
+                          }
+                        }}
+                      />
+                    </View>
+                  </View>
+                </Modal>
               </View>
             )}
           </View>

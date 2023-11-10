@@ -67,12 +67,14 @@ export default function App({ items }) {
             </tr>
               <tr>
                 <td colspan="1"><strong>Procesado por:</strong> ${
-                  procesadoPor !== "undefined undefined"
+                  procesadoPor !== "undefined undefined" &&
+                  procesadoPor !== null
                     ? procesadoPor
                     : "NO PROCESADO"
                 }</td>
                 <td colspan="1"><strong>Completado por:</strong> ${
-                  completadoPor !== "undefined undefined"
+                  completadoPor !== "undefined undefined" &&
+                  completadoPor !== null
                     ? completadoPor
                     : "NO COMPLETADO"
                 }</td>

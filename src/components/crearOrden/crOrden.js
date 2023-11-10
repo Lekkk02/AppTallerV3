@@ -38,6 +38,11 @@ const Formulario = () => {
       alert("La cédula deben ser números");
       return;
     }
+    if (cedula.length > 8) {
+      alert("Introduzca un número válido de cédula");
+      return;
+    }
+
     setCedula(cedula);
   };
 
@@ -87,6 +92,13 @@ const Formulario = () => {
     if (!comentarios || comentarios == "") {
       alert("Ingrese un comentario sobre el producto");
       return false;
+    }
+
+    if (comentarios.length > 250) {
+      alert(
+        "El comentario es demasiado largo, máximo se permiten 250 caracteres"
+      );
+      return;
     }
     return true;
   };
