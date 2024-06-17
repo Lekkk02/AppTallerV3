@@ -10,16 +10,14 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
-import LotesCard from "../../components/cards/LotesCard";
-import { COLORS, SIZES } from "../../constants";
+import ProductoCard from "../../components/cards/ProductoCard";
 import fetchUserData from "../../hook/fetchUserData";
+import { COLORS, SIZES } from "../../constants";
 
-const BusquedaLotes = ({ route }) => {
-  const { slug } = route.params; // Obtiene el término de búsqueda de la navegación
+const Productos = () => {
   const navigation = useNavigation();
   const [userData, setUserData] = useState(null);
-  const [allLotes, setAllLotes] = useState([]);
-  const [filteredLotes, setFilteredLotes] = useState([]);
+  const [products, setProducts] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -40,26 +38,16 @@ const BusquedaLotes = ({ route }) => {
 
   useEffect(() => {
     if (userData) {
-      loadLotesData();
+      loadProductData();
     }
   }, [userData]);
 
-  useEffect(() => {
-    if (slug && allLotes.length > 0) {
-      const filtered = allLotes.filter((lote) =>
-        lote.name.toLowerCase().includes(slug.toLowerCase())
-      );
-      setFilteredLotes(filtered);
-      setCurrentPage(1); // Resetear a la primera página
-    }
-  }, [slug, allLotes]);
-
-  const loadLotesData = async () => {
+  const loadProductData = async () => {
     setLoading(true);
     try {
       const token = await AsyncStorage.getItem("authToken");
-      const lotesResponse = await fetch(
-        `https://tesis-back.azurewebsites.net/api/inventory/company/${userData.companyID}`,
+      const productsResponse = await fetch(
+        `https://tesis-back.azurewebsites.net/api/product/batch/${userData.companyID}`,
         {
           method: "GET",
           headers: {
@@ -68,8 +56,8 @@ const BusquedaLotes = ({ route }) => {
           },
         }
       );
-      const lotesData = await lotesResponse.json();
-      setAllLotes(lotesData.data);
+      const productData = await productsResponse.json();
+      setProducts(productData.data);
     } catch (error) {
       console.log(error);
     } finally {
@@ -79,17 +67,17 @@ const BusquedaLotes = ({ route }) => {
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
-    loadLotesData().then(() => setRefreshing(false));
+    loadProductData().then(() => setRefreshing(false));
   }, [userData]);
 
-  const paginate = (items, currentPage, itemsPerPage) => {
+  const paginate = (products, currentPage, itemsPerPage) => {
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
-    return items.slice(startIndex, endIndex);
+    return products.slice(startIndex, endIndex);
   };
 
   const handleNextPage = () => {
-    if (currentPage * itemsPerPage < filteredLotes.length) {
+    if (currentPage * itemsPerPage < products.length) {
       setCurrentPage(currentPage + 1);
     }
   };
@@ -100,30 +88,23 @@ const BusquedaLotes = ({ route }) => {
     }
   };
 
-  if (loading) {
-    return <ActivityIndicator size="large" color={COLORS.tertiary} />;
-  }
-  if (filteredLotes.length === 0) {
-    return <Text>No hay lotes con esa información</Text>;
-  }
-
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Resultados de búsqueda</Text>
+        <Text style={styles.headerTitle}>Productos</Text>
       </View>
       <View style={styles.cardsContainer}>
-        {refreshing ? (
+        {refreshing || loading ? (
           <ActivityIndicator size="large" color={COLORS.tertiary} />
         ) : (
           <>
             <FlatList
               style={{ paddingBottom: 8 }}
-              data={paginate(filteredLotes, currentPage, itemsPerPage)}
+              data={paginate(products, currentPage, itemsPerPage)}
               refreshControl={
                 <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
               }
-              renderItem={({ item }) => <LotesCard item={item} />}
+              renderItem={({ item }) => <ProductoCard item={item} />}
               keyExtractor={(item, index) => index.toString()}
               contentContainerStyle={{ paddingBottom: 20 }}
               persistentScrollbar
@@ -134,7 +115,7 @@ const BusquedaLotes = ({ route }) => {
                 onPress={handlePrevPage}
                 disabled={currentPage === 1}
                 style={[
-                  styles.paginationButton,
+                  styles.paginationButtonAnterior,
                   currentPage === 1 && styles.disabledButton,
                 ]}
               >
@@ -143,10 +124,10 @@ const BusquedaLotes = ({ route }) => {
               <Text style={styles.paginationText}>{currentPage}</Text>
               <TouchableOpacity
                 onPress={handleNextPage}
-                disabled={currentPage * itemsPerPage >= filteredLotes.length}
+                disabled={currentPage * itemsPerPage >= products.length}
                 style={[
                   styles.paginationButton,
-                  currentPage * itemsPerPage >= filteredLotes.length &&
+                  currentPage * itemsPerPage >= products.length &&
                     styles.disabledButton,
                 ]}
               >
@@ -202,7 +183,6 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     marginHorizontal: SIZES.small,
   },
-
   paginationButtonText: {
     color: COLORS.white,
   },
@@ -215,4 +195,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default BusquedaLotes;
+export default Productos;

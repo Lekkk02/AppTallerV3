@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext } from "react";
 import {
   Entypo,
   Ionicons,
@@ -9,31 +9,26 @@ import {
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
-import { FIREBASE_AUTH } from "./FirebaseConfig";
 import {
   View,
   TouchableOpacity,
   Text,
   StyleSheet,
   SafeAreaView,
-  Image,
   ActivityIndicator,
 } from "react-native";
+import { COLORS } from "./src/constants";
+import { AuthContext, AuthProvider } from "./src/context/AuthContext";
 
-// Importa tus pantallas aquí
 import HomeScreen from "./src/screens/HomeScreen";
-import RegistroScreen from "./src/screens/RegistroScreen";
-import CrearOrdenScreen from "./src/screens/CrearOrdenScreen";
-import OrdenScreen from "./src/screens/orden/[id]";
-import OrdenesScreen from "./src/screens/ordenes/[slug]";
+import LoteScreen from "./src/screens/lote/[id]";
+import ProductoScreen from "./src/screens/producto/[id]";
+import LotesScreen from "./src/screens/lotes";
 import BusquedaScreen from "./src/screens/search/[slug]";
 import ScanScreen from "./src/screens/ScanScreen";
 import LoginScreen from "./src/screens/LoginScreen";
 import CerrarSesionScreen from "./src/screens/CerrarScreen";
-import EmpleadosScreen from "./src/screens/EmpleadosScreen";
-import DefectuosasScreen from "./src/screens/DefectuosasScreen";
-import { signOut } from "firebase/auth";
-
+import ProductosScreen from "./src/screens/productos";
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
@@ -46,11 +41,12 @@ function HomeTabs() {
         options={{
           tabBarIcon: () => <Entypo name="home" size={24} color="black" />,
           tabBarLabel: ({ focused, color }) => (
-            <Text style={{ color, fontSize: focused ? 16 : 14 }}>Inicio</Text> // Cambia el tamaño del texto aquí
+            <Text style={{ color, fontSize: focused ? 16 : 14 }}>Inicio</Text>
           ),
+          tabBarStyle: { paddingTop: 6, paddingBottom: 2 },
         }}
       />
-      <Tab.Screen
+      {/*  <Tab.Screen
         name="CrearOrden"
         component={CrearOrdenScreen}
         options={{
@@ -58,7 +54,7 @@ function HomeTabs() {
           tabBarLabel: ({ focused, color }) => (
             <Text style={{ color, fontSize: focused ? 16 : 14 }}>
               Crear orden
-            </Text> // Cambia el tamaño del texto aquí
+            </Text>
           ),
         }}
       />
@@ -72,7 +68,7 @@ function HomeTabs() {
           tabBarLabel: ({ focused, color }) => (
             <Text style={{ color, fontSize: focused ? 16 : 14 }}>
               Empleados
-            </Text> // Cambia el tamaño del texto aquí
+            </Text>
           ),
         }}
       />
@@ -86,25 +82,24 @@ function HomeTabs() {
           tabBarLabel: ({ focused, color }) => (
             <Text style={{ color, fontSize: focused ? 16 : 14 }}>
               Suspendidas
-            </Text> // Cambia el tamaño del texto aquí
+            </Text>
           ),
         }}
-      />
+      /> */}
     </Tab.Navigator>
   );
 }
 
 function App() {
-  const auth = FIREBASE_AUTH;
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { isLoggedIn, loading, signOut } = useContext(AuthContext);
 
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      setIsLoggedIn(!!user);
-    });
-
-    return () => unsubscribe();
-  }, []);
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={COLORS.tertiary} />
+      </View>
+    );
+  }
 
   return (
     <NavigationContainer>
@@ -121,16 +116,12 @@ function App() {
                     display: "flex",
                     flexDirection: "row",
                     justifyContent: "space-between",
-                    marginTop: 22,
+                    marginTop: 16,
                     marginHorizontal: 10,
                     marginBottom: 12,
                   }}
                 >
-                  <TouchableOpacity
-                    onPress={() => {
-                      signOut(auth);
-                    }}
-                  >
+                  <TouchableOpacity onPress={signOut}>
                     <SimpleLineIcons name="logout" size={40} color="black" />
                   </TouchableOpacity>
                   <TouchableOpacity
@@ -148,38 +139,27 @@ function App() {
               ),
             }}
           />
-          <Stack.Screen name="Orden" component={OrdenScreen} />
-          <Stack.Screen name="Ordenes" component={OrdenesScreen} />
+          <Stack.Screen name="Producto" component={ProductoScreen} />
+          <Stack.Screen name="Lote" component={LoteScreen} />
+          <Stack.Screen name="Productos" component={ProductosScreen} />
+          <Stack.Screen name="Lotes" component={LotesScreen} />
           <Stack.Screen name="Busqueda" component={BusquedaScreen} />
           <Stack.Screen name="Escanear" component={ScanScreen} />
           <Stack.Screen name="CerrarSesion" component={CerrarSesionScreen} />
         </Stack.Navigator>
       ) : (
-        <Tab.Navigator screenOptions={{ headerShown: false }}>
+        <Tab.Navigator
+          screenOptions={{
+            headerShown: false,
+            tabBarIconStyle: { display: "none" },
+          }}
+        >
           <Tab.Screen
             name="LoginTab"
             component={LoginScreen}
             options={{
-              tabBarIcon: () => <Entypo name="login" size={24} color="black" />,
-              tabBarLabel: ({ focused, color }) => (
-                <Text style={{ color, fontSize: focused ? 16 : 14 }}>
-                  Iniciar sesión
-                </Text> // Cambia el tamaño del texto aquí
-              ),
-            }}
-          />
-          <Tab.Screen
-            name="RegistroTab"
-            component={RegistroScreen}
-            options={{
-              tabBarIcon: () => (
-                <MaterialIcons name="create" size={24} color="black" />
-              ),
-              tabBarLabel: ({ focused, color }) => (
-                <Text style={{ color, fontSize: focused ? 16 : 14 }}>
-                  Registrar usuario
-                </Text> // Cambia el tamaño del texto aquí
-              ),
+              tabBarShowLabel: false,
+              headerShown: false,
             }}
           />
         </Tab.Navigator>
@@ -205,4 +185,8 @@ const styles = StyleSheet.create({
   },
 });
 
-export default App;
+export default () => (
+  <AuthProvider>
+    <App />
+  </AuthProvider>
+);

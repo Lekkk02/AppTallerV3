@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import {
   View,
-  Button,
   Modal,
   StyleSheet,
   Text,
@@ -9,11 +8,7 @@ import {
   Image,
 } from "react-native";
 import { BarCodeScanner } from "expo-barcode-scanner";
-
 import { COLORS, icons } from "../constants";
-
-import useFetch from "../hook/useFetch";
-
 import { useNavigation } from "@react-navigation/native";
 
 const QRScannerButton = () => {
@@ -28,24 +23,25 @@ const QRScannerButton = () => {
       setHasPermission(status === "granted");
     })();
   }, []);
-  const checkOrden = (id) => {
-    const { data: orden, error, isLoading } = useFetch(`${id}`);
-    console.log(orden);
-    console.log(orden.length);
-    if (orden.length === 0) {
-      return false;
-    } else {
-      return true;
-    }
-  };
+
   const handleBarCodeScanned = ({ data }) => {
     setScannedData(data);
-    if (checkOrden) {
+    const [type, id] = data.split(":");
+
+    if (type === "lot" && id) {
       navigation.navigate(
-        "Orden",
-        { id: data },
+        "Lote",
+        { id: id.trim() },
         { stackPresentation: "replace" }
       );
+    } else if (type === "product" && id) {
+      navigation.navigate(
+        "Producto",
+        { id: id.trim() },
+        { stackPresentation: "replace" }
+      );
+    } else {
+      alert("Código QR no válido");
     }
 
     setScanning(false);
@@ -61,31 +57,26 @@ const QRScannerButton = () => {
   };
 
   if (hasPermission === null) {
-    return <View />;
+    return (
+      <View style={styles.container}>
+        <Text>Solicitando permiso a la cámara...</Text>
+      </View>
+    );
   }
 
   if (hasPermission === false) {
-    return <Text>Sin acceso a la cámara</Text>;
+    return (
+      <View style={styles.container}>
+        <Text>Sin acceso a la cámara</Text>
+      </View>
+    );
   }
 
   return (
-    <View>
-      <TouchableOpacity
-        onPress={() => {
-          setScanning(true);
-        }}
-      >
-        <View style={{ alignSelf: "center" }}>
-          <Image
-            source={icons.qrLogo}
-            style={{ width: 300, height: 300, borderRadius: 75 }}
-          />
-          <Text
-            style={{ alignSelf: "center", fontWeight: "bold", fontSize: 24 }}
-          >
-            ¡Click para abrir el scanner!
-          </Text>
-        </View>
+    <View style={styles.container}>
+      <TouchableOpacity onPress={handleScanPress} style={styles.qrButton}>
+        <Image source={icons.qrLogo} style={styles.qrImage} />
+        <Text style={styles.qrButtonText}>¡Click para abrir el scanner!</Text>
       </TouchableOpacity>
       <Modal visible={scanning} animationType="slide" transparent={false}>
         <View style={styles.scannerContainer}>
@@ -93,8 +84,11 @@ const QRScannerButton = () => {
             onBarCodeScanned={handleBarCodeScanned}
             style={StyleSheet.absoluteFill}
           />
-          <TouchableOpacity style={styles.btnCerrar} onPress={handleModalClose}>
-            <Text style={styles.txtbtnCerrar}>CERRAR</Text>
+          <TouchableOpacity
+            style={styles.closeButton}
+            onPress={handleModalClose}
+          >
+            <Text style={styles.closeButtonText}>CERRAR</Text>
           </TouchableOpacity>
         </View>
       </Modal>
@@ -107,29 +101,40 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: COLORS.white,
+  },
+  qrButton: {
+    alignItems: "center",
+  },
+  qrImage: {
+    width: 300,
+    height: 300,
+    borderRadius: 20,
+  },
+  qrButtonText: {
+    marginTop: 20,
+    fontWeight: "bold",
+    fontSize: 24,
+    color: COLORS.primary,
   },
   scannerContainer: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: COLORS.background,
   },
-  resultContainer: {
-    marginTop: 20,
-    alignItems: "center",
-  },
-  resultText: {
-    fontSize: 18,
-  },
-  btnCerrar: {
-    backgroundColor: COLORS.OrdenEspera,
+  closeButton: {
+    position: "absolute",
+    bottom: 50,
+    backgroundColor: COLORS.primary,
     paddingHorizontal: 32,
-    padding: 12,
-    top: 290,
+    paddingVertical: 12,
     borderRadius: 50,
   },
-  txtbtnCerrar: {
+  closeButtonText: {
     fontSize: 16,
     fontWeight: "bold",
+    color: COLORS.white,
   },
 });
 

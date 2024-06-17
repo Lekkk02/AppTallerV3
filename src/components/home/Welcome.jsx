@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -7,20 +7,42 @@ import {
   Image,
   FlatList,
 } from "react-native";
-
 import styles from "./welcome.style";
 import { useNavigation } from "@react-navigation/native";
+
+import fetchUserData from "../../hook/fetchUserData";
 
 import { icons, SIZES } from "../../constants";
 
 const Bienvenida = () => {
   const [busqueda, setBusqueda] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  
+  const [userData, setUserData] = useState(null)
   const navigation = useNavigation();
+
+  useEffect(() => {
+    const loadUserData = async () => {
+      try {
+        const user = await fetchUserData();
+        console.log(user)
+        setUserData(user);
+      } catch (error) {
+        console.log(error)
+      } 
+      
+    };
+
+    loadUserData();
+  }, []);
+
+  if(!userData){
+    return(<Text>Cargando...</Text>)
+  }
   return (
     <View>
       <View style={styles.container}>
-        <Text style={styles.userName}>Bienvenido... </Text>
-        <Text style={styles.welcomeMessage}>¡Gestiona tu taller aquí!</Text>
+        <Text style={styles.userName}>Bienvenido, <Text style= {{fontWeight:"bold"}}>{userData.name}</Text></Text>
       </View>
 
       <View style={styles.searchContainer}>
@@ -29,7 +51,7 @@ const Bienvenida = () => {
             style={styles.searchInput}
             value={busqueda}
             onChangeText={setBusqueda}
-            placeholder="¿Qué equipo buscas?"
+            placeholder="¿Qué lote estás buscando?"
           />
         </View>
         <TouchableOpacity

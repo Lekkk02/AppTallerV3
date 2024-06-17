@@ -4,9 +4,9 @@ import QRCode from "react-native-qrcode-svg";
 
 import ViewShot from "react-native-view-shot";
 import * as MediaLibrary from "expo-media-library";
-const GenerarQR = ({ orden }) => {
+const GenerarQR = ({ typeID }) => {
   const viewRef = useRef();
-  const id = orden;
+  const qrValue = typeID;
   const saveQR = async () => {
     if (Platform.OS === "android") {
       const { status } = await MediaLibrary.requestPermissionsAsync();
@@ -33,8 +33,8 @@ const GenerarQR = ({ orden }) => {
       }}
     >
       <ViewShot ref={viewRef} options={{ format: "png", quality: 1.0 }}>
-        <View style={{ backgroundColor: "white", padding: 20 }}>
-          <QRCode value={`${id}`} size={125} />
+        <View style={{ backgroundColor: "white", padding: 14 }}>
+          <QRCode value={qrValue} size={125} />
         </View>
       </ViewShot>
       <Button title="Guardar QR" onPress={saveQR} />

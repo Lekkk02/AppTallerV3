@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import {
   View,
   TextInput,
@@ -9,29 +9,52 @@ import {
   Text,
   ActivityIndicator,
 } from "react-native";
+import { AuthContext } from "../context/AuthContext";
 import { images, COLORS } from "../constants";
-import {
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-} from "firebase/auth";
-import { FIREBASE_AUTH } from "../../FirebaseConfig";
-const LoginScreen = () => {
-  const auth = FIREBASE_AUTH;
+
+const LoginScreen = ({ navigation }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const signIn = async () => {
+  const { signIn } = useContext(AuthContext);
+
+  const handleSignIn = async () => {
     setLoading(true);
+    setError("");
+
     try {
-      const response = await signInWithEmailAndPassword(
-        auth,
-        username,
-        password
+      const res = await fetch(
+        "https://tesis-back.azurewebsites.net/api/users/login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: username,
+            password: password,
+          }),
+          credentials: "include",
+        }
       );
-      console.log(response);
+
+      if (res.status === 200) {
+        const data = await res.json();
+
+        if (data.token) {
+          // Almacena el token en AsyncStorage y actualiza el estado de autenticación
+          await signIn(data.token);
+        } else {
+          setError("Token no encontrado en la respuesta");
+        }
+      } else {
+        const errorData = await res.json();
+        setError(errorData.message || "Error desconocido");
+      }
     } catch (error) {
-      alert("Credenciales incorrecta o no se han ingresado credenciales");
+      console.error("Error de autenticación", error);
+      setError("Error de red o de servidor");
     } finally {
       setLoading(false);
     }
@@ -54,6 +77,7 @@ const LoginScreen = () => {
         placeholder="Correo"
         value={username}
         onChangeText={setUsername}
+        autoCapitalize="none"
       />
       <TextInput
         style={styles.input}
@@ -62,8 +86,8 @@ const LoginScreen = () => {
         onChangeText={setPassword}
         secureTextEntry
       />
-      {error !== "" ? <Text>{error}</Text> : null}
-      <Button title="Iniciar sesión" onPress={signIn} />
+      {error !== "" && <Text style={styles.error}>{error}</Text>}
+      <Button title="Iniciar sesión" onPress={handleSignIn} />
       <Text
         style={{
           fontStyle: "italic",
@@ -101,6 +125,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     borderRadius: 5,
     backgroundColor: "#fff",
+  },
+  error: {
+    color: "red",
+    marginBottom: 10,
+    textAlign: "center",
   },
 });
 
